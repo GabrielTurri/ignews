@@ -18,6 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     //cadastrando o clinte no stripe
     const session = await getSession({ req })
 
+    // buscando os dados do usuario
     const user = await fauna.query<User>(
       q.Get(
         q.Match(
@@ -35,6 +36,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         // metadata
       })
 
+      // atualizando o usuario
       await fauna.query(
         q.Update(
           q.Ref(q.Collection('users'), user.ref.id),
@@ -45,11 +47,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           }
         )
       )
-
       customerId = stripeCustomer.id
 
     }
     
+    // redireciona o usuario para o checkout
     const stripeCheckoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
